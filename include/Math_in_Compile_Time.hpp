@@ -47,61 +47,50 @@ namespace prac::math
 
 
 	template< class A = BLANK, class T, class R = Real<A, T> >
-	static auto constexpr Power_term(T const x, int const k) noexcept-> R
-	{
-		return 
-		(	k == 0 ?	R(1) 
-		:	k < 0 ? 1 / Power_term<R>(x, -k)
-		:	Power_term<R>(x, k - 1) * x/k
-		);
-	}
-
-
-	static auto constexpr Alternated(int const k) noexcept-> int
-	{
-		return k % 2 == 0 ? 1 : -1;
-	}
-
-
-	template< class A = BLANK, class T, class R = Real<A, T> >
-	static auto constexpr Exp(T const x, int const k = 0, R const res = 0) noexcept-> R
+	static auto constexpr Exp(T const x, int k = 0, R const pow_term = 1, R const res = 0) 
+	noexcept-> R
 	{
 		return
-		[err = Power_term<R>(x, k), x, k, res]() constexpr-> R
+		[	=
+		,	finish = Abs<R>(pow_term) <= std::numeric_limits<R>::epsilon()
+		,	next_term = pow_term*x/(k+1)
+		,	next_result = res + pow_term
+		]() constexpr-> R
 		{
-			return
-			(	Abs<R>(err) <= std::numeric_limits<R>::epsilon() ? res 
-			:	Exp<R>(x, k+1, res + err)
-			);
+			return finish ? next_result : Exp<R>(x, k+1, next_term, next_result);
 		}();
 	}
 
 
 	template< class A = BLANK, class T, class R = Real<A, T> >
-	static auto constexpr Cos(T const x, int const k = 0, R const res = 0) noexcept-> R
+	static auto constexpr Cos(T const x, int const k = 0, R const pow_term = 1, R const res = 0) 
+	noexcept-> R
 	{
 		return
-		[err = Power_term<R>(x, 2*k), x, k, res]() constexpr-> R
+		[	=
+		,	finish = Abs<R>(pow_term) <= std::numeric_limits<R>::epsilon()
+		,	next_term = -pow_term*x*x/( (2*k+2)*(2*k+1) )
+		,	next_result = res + pow_term
+		]() constexpr-> R
 		{
-			return
-			(	Abs<R>(err) <= std::numeric_limits<R>::epsilon() ? res
-			:	Cos<R>( x, k+1, res + err*Alternated(k) )
-			);
+			return finish ? next_result : Cos<R>(x, k+1, next_term, next_result);
 		}();
 	}
 
 
 	template< class A = BLANK, class T, class R = Real<A, T> >
-	static auto constexpr Sin(T const x, int const k = 0, R const res = 0) noexcept-> R
+	static auto constexpr Sin(T const x, int const k = 0, R const pow_term = 1, R const res = 0) 
+	noexcept-> R
 	{
 		return
-		[err = Power_term<R>(x, 2*k + 1), x, k, res]() constexpr-> R
+		[	=
+		,	finish = Abs<R>(pow_term) <= std::numeric_limits<R>::epsilon()
+		,	next_term = -pow_term*x*x/( (2*k+3)*(2*k+2) )
+		,	next_result = res + pow_term
+		]() constexpr-> R
 		{
-			return
-			(	Abs<R>(err) <= std::numeric_limits<R>::epsilon() ? res
-			:	Sin<R>( x, k+1, res + err*Alternated(k) )
-			);
-		}();		
+			return finish ? x*next_result : Sin<R>(x, k+1, next_term, next_result);
+		}();	
 	}
 
 

@@ -15,7 +15,7 @@ int main()
 	using namespace prac::math;
 
 	{
-		auto constexpr 
+		auto constexpr
 			exp_n2 = Exp(-2),
 			exp_n1 = Exp(-1),
 			exp_0 = Exp(0),
@@ -77,6 +77,9 @@ int main()
 		&&	::Are_close( tan_1, std::tan(1) )
 		&&	::Are_close( tan_2, std::tan(2) )
 		);
+	}
+	{
+		//auto constexpr pi = Pi<double>();
 	}
 
 
